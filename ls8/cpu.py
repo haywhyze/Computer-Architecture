@@ -15,7 +15,7 @@ class CPU:
         self.register = [0] * 8
 
         # Program Counter
-        self.PC = self.register[0]
+        self.pc = self.register[0]
 
     def load(self):
         """Load a program into memory."""
@@ -51,7 +51,7 @@ class CPU:
         """ALU operations."""
 
         if op == "ADD":
-            self.reg[reg_a] += self.reg[reg_b]
+            self.register[reg_a] += self.register[reg_b]
         #elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
@@ -72,10 +72,31 @@ class CPU:
         ), end='')
 
         for i in range(8):
-            print(" %02X" % self.reg[i], end='')
+            print(" %02X" % self.register[i], end='')
 
         print()
 
     def run(self):
         """Run the CPU."""
-        pass
+        
+        IR = self.ram[self.pc]
+        PRN = 0b01000111
+        LDI = 0b10000010
+        HLT = 0b00000001
+
+        while True:
+            IR = self.ram[self.pc]
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
+
+            print(IR, self.pc)
+
+            if IR == LDI:
+                self.register[operand_a] = operand_b
+                self.pc += 3
+            elif IR == PRN:
+                print(self.register[operand_a])
+                self.pc += 2
+            elif IR == HLT:
+                break
+
