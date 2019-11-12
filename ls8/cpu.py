@@ -38,6 +38,14 @@ class CPU:
             self.ram[address] = instruction
             address += 1
 
+    def ram_read(self, location):
+        """Read avalue stored at specified address."""
+        return self.ram[location]
+
+    def ram_write(self, location, value):
+        """Writes value to RAM at the address specified."""
+        self.ram[location] = value
+
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
