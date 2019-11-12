@@ -17,6 +17,17 @@ class CPU:
         # Program Counter
         self.pc = self.register[0]
 
+        # Instruction Register
+        self.ir = None
+
+        # Operation Codes
+        self.OPCODES = {
+            0b10000010: 'LDI',
+            0b01000111: 'PRN',
+            0b00000001: 'HLT',
+            0b10100010: 'MUL',
+        }
+
     def load(self, filename):
         """Load a program into memory."""
 
@@ -82,6 +93,8 @@ class CPU:
 
         if op == "ADD":
             self.register[reg_a] += self.register[reg_b]
+        elif op == "MUL":
+            self.register[reg_a] *= self.register[reg_b]
         #elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
@@ -109,22 +122,21 @@ class CPU:
     def run(self):
         """Run the CPU."""
         
-        IR = self.ram[self.pc]
-        PRN = 0b01000111
-        LDI = 0b10000010
-        HLT = 0b00000001
-
         while True:
-            IR = self.ram[self.pc]
+            self.ir = self.ram[self.pc]
+            op = self.OPCODES[self.ir]
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
-            if IR == LDI:
+            if op == "LDI":
                 self.register[operand_a] = operand_b
                 self.pc += 3
-            elif IR == PRN:
+            elif op == "PRN":
                 print(self.register[operand_a])
                 self.pc += 2
-            elif IR == HLT:
+            elif op == "ADD" or op == "MUL":
+                self.alu(op, operand_a, operand_b)
+                self.pc += 3
+            elif op == "HLT":
                 break
 
