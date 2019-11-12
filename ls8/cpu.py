@@ -89,8 +89,6 @@ class CPU:
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
-            print(IR, self.pc)
-
             if IR == LDI:
                 self.register[operand_a] = operand_b
                 self.pc += 3
