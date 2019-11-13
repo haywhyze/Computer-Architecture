@@ -2,6 +2,11 @@
 
 import sys
 
+LDI = 0b10000010
+PRN = 0b01000111
+HLT = 0b00000001
+MUL = 0b10100010
+
 class CPU:
     """Main CPU class."""
 
@@ -20,13 +25,28 @@ class CPU:
         # Instruction Register
         self.ir = None
 
-        # Operation Codes
-        self.OPCODES = {
-            0b10000010: 'LDI',
-            0b01000111: 'PRN',
-            0b00000001: 'HLT',
-            0b10100010: 'MUL',
-        }
+        # set up branchtable
+        self.branchtable = {}
+        self.branchtable[LDI] = self.handle_ldi
+        self.branchtable[PRN] = self.handle_prn
+        self.branchtable[HLT] = self.handle_hlt
+        self.branchtable[MUL] = self.handle_mul
+
+    
+    def handle_hlt(self, a, b):
+        sys.exit()
+
+    def handle_ldi(self, a, b):
+        self.register[a] = b
+        self.pc += 3
+    
+    def handle_prn(self, a, b):
+        print(self.register[a])
+        self.pc += 2
+
+    def handle_mul(self, a, b):
+        self.alu("MUL", a, b)
+        self.pc += 3
 
     def load(self, filename):
         """Load a program into memory."""
@@ -124,19 +144,8 @@ class CPU:
         
         while True:
             self.ir = self.ram[self.pc]
-            op = self.OPCODES[self.ir]
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
-            if op == "LDI":
-                self.register[operand_a] = operand_b
-                self.pc += 3
-            elif op == "PRN":
-                print(self.register[operand_a])
-                self.pc += 2
-            elif op == "ADD" or op == "MUL":
-                self.alu(op, operand_a, operand_b)
-                self.pc += 3
-            elif op == "HLT":
-                break
+            self.branchtable[self.ir](operand_a, operand_b)
 
