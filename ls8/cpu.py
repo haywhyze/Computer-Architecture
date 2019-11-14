@@ -36,16 +36,17 @@ class CPU:
         self.halted = False
 
         # set up branchtable
-        self.branchtable = {}
-        self.branchtable[LDI] = self.handle_ldi
-        self.branchtable[PRN] = self.handle_prn
-        self.branchtable[HLT] = self.handle_hlt
-        self.branchtable[ADD] = self.handle_add
-        self.branchtable[MUL] = self.handle_mul
-        self.branchtable[PUSH] = self.handle_push
-        self.branchtable[POP] = self.handle_pop
-        self.branchtable[CALL] = self.handle_call
-        self.branchtable[RET] = self.handle_ret
+        self.branchtable = {
+            LDI: self.handle_ldi,
+            PRN: self.handle_prn,
+            HLT: self.handle_hlt,
+            ADD: self.handle_add,
+            MUL: self.handle_mul,
+            PUSH: self.handle_push,
+            POP: self.handle_pop,
+            CALL: self.handle_call,
+            RET: self.handle_ret
+        }
 
     
     def handle_hlt(self, a, b):
