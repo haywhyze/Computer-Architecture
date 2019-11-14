@@ -8,6 +8,9 @@ HLT = 0b00000001
 MUL = 0b10100010
 POP = 0b01000110
 PUSH = 0b01000101
+CALL = 0b01010000
+RET = 0b00010001
+ADD = 0b10100000
 
 class CPU:
     """Main CPU class."""
@@ -37,9 +40,12 @@ class CPU:
         self.branchtable[LDI] = self.handle_ldi
         self.branchtable[PRN] = self.handle_prn
         self.branchtable[HLT] = self.handle_hlt
+        self.branchtable[ADD] = self.handle_add
         self.branchtable[MUL] = self.handle_mul
         self.branchtable[PUSH] = self.handle_push
         self.branchtable[POP] = self.handle_pop
+        self.branchtable[CALL] = self.handle_call
+        self.branchtable[RET] = self.handle_ret
 
     
     def handle_hlt(self, a, b):
@@ -55,6 +61,10 @@ class CPU:
 
     def handle_mul(self, a, b):
         self.alu("MUL", a, b)
+        self.pc += 3
+    
+    def handle_add(self, a, b):
+        self.alu("ADD", a, b)
         self.pc += 3
 
     def handle_pop(self, a, b):
@@ -72,6 +82,16 @@ class CPU:
         self.register[self.sp] -= 1
         self.ram[self.register[self.sp]] = val
         self.pc += 2
+
+    def handle_call(self, a, b):
+        self.register[self.sp] -= 1
+        self.ram[self.register[self.sp]] = self.pc + 2
+
+        self.pc = self.register[a]
+    
+    def handle_ret(self, a, b):
+        self.pc = self.ram[self.register[self.sp]]
+        self.register[self.sp] += 1
 
     def load(self, filename):
         """Load a program into memory."""
@@ -132,7 +152,6 @@ class CPU:
         """Writes value to RAM at the address specified."""
         self.ram[location] = value
 
-
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
@@ -171,5 +190,4 @@ class CPU:
             self.ir = self.ram[self.pc]
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
-
             self.branchtable[self.ir](operand_a, operand_b)
