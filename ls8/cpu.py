@@ -29,6 +29,8 @@ class CPU:
 
         # Stack Pointer 
         self.sp = 7 # Stack pointer R7
+        
+        self.halted = False
 
         # set up branchtable
         self.branchtable = {}
@@ -41,7 +43,7 @@ class CPU:
 
     
     def handle_hlt(self, a, b):
-        sys.exit()
+        self.halted = True
 
     def handle_ldi(self, a, b):
         self.register[a] = b
@@ -165,10 +167,9 @@ class CPU:
     def run(self):
         """Run the CPU."""
         
-        while True:
+        while not self.halted:
             self.ir = self.ram[self.pc]
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
             self.branchtable[self.ir](operand_a, operand_b)
-
